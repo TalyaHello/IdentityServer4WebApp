@@ -1,5 +1,6 @@
 using IdentityServer4WebApp.Data;
 using IdentityServer4WebApp.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,13 +13,19 @@ builder.Services
        .AddDefaultIdentity<ApplicationUser>()
        .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services
+       .AddIdentityServer()
+       .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+builder.Services
+       .AddAuthentication()
+       .AddIdentityServerJwt();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -29,6 +36,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseIdentityServer();
 
 app.MapRazorPages();
 
